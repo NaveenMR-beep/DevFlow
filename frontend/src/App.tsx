@@ -41,6 +41,9 @@ function App() {
     "Welcome to your DevFlow workspace!"
   );
   const [loadingProjects, setLoadingProjects] = useState(false);
+  const [activeSection, setActiveSection] = useState<
+    "dashboard" | "projects" | "profile"
+  >("dashboard");
 
   function handleLogout() {
     sessionStorage.removeItem("devflow_token");
@@ -327,8 +330,47 @@ function App() {
         <h1 className="brand">DevFlow<span>.</span></h1>
         <p className="sidebar-label">WORKSPACE</p>
 
-        <div className="nav-item active">▦ Dashboard</div>
-        <div className="nav-item">◇ My Projects</div>
+        <button
+          className={`nav-item ${activeSection === "dashboard" ? "active" : ""}`}
+          type="button"
+          onClick={() => {
+            setActiveSection("dashboard");
+            document.getElementById("dashboard-section")?.scrollIntoView({
+              behavior: "smooth",
+              block: "start",
+            });
+          }}
+        >
+          ▦ Dashboard
+        </button>
+
+        <button
+          className={`nav-item ${activeSection === "projects" ? "active" : ""}`}
+          type="button"
+          onClick={() => {
+            setActiveSection("projects");
+            document.getElementById("projects-section")?.scrollIntoView({
+              behavior: "smooth",
+              block: "start",
+            });
+          }}
+        >
+          ◇ My Projects
+        </button>
+
+        <button
+          className={`nav-item ${activeSection === "profile" ? "active" : ""}`}
+          type="button"
+          onClick={() => {
+            setActiveSection("profile");
+            document.getElementById("profile-section")?.scrollIntoView({
+              behavior: "smooth",
+              block: "start",
+            });
+          }}
+        >
+          ◉ My Profile
+        </button>
 
         <div className="sidebar-footer">
           <div className="avatar">
@@ -355,8 +397,30 @@ function App() {
             </button>
           </div>
         </header>
+        
+<section className="profile-section" id="profile-section">
+  <div className="section-heading">
+    <div>
+      <h2>My Profile</h2>
+      <p>Your DevFlow account information</p>
+    </div>
+  </div>
 
-        <section className="welcome">
+  <div className="profile-card">
+    <div className="profile-avatar">
+      {user?.username?.charAt(0).toUpperCase() ?? "U"}
+    </div>
+
+    <div className="profile-details">
+      <h3>{user?.username ?? "Loading..."}</h3>
+      <p>{user?.email ?? "Loading email..."}</p>
+      <span className="profile-status">Account active</span>
+    </div>
+  </div>
+</section>
+
+
+        <section className="welcome" id="dashboard-section">
           <div>
             <p className="eyebrow">YOUR DEVELOPMENT SPACE</p>
             <h2>Build something great.</h2>
@@ -385,7 +449,7 @@ function App() {
           </article>
         </section>
 
-        <section className="project-layout">
+        <section className="project-layout" id="projects-section">
           <div className="panel projects-panel">
             <div className="panel-heading">
               <div>

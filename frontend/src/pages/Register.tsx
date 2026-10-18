@@ -10,6 +10,7 @@ function Register({ onRegistered, onShowLogin }: RegisterProps) {
   const [username, setUsername] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
 
@@ -55,39 +56,53 @@ function Register({ onRegistered, onShowLogin }: RegisterProps) {
         <h1 className="brand">
           DevFlow<span>.</span>
         </h1>
+
         <h2>Create your account</h2>
         <p>Start organizing your software projects.</p>
 
         <form onSubmit={handleSubmit}>
-          <label htmlFor="username">Username</label>
+          <label htmlFor="register-username">Username</label>
           <input
-            id="username"
+            id="register-username"
             value={username}
             onChange={(event) => setUsername(event.target.value)}
             required
             autoComplete="username"
+            placeholder="Choose a username"
           />
 
-          <label htmlFor="email">Email</label>
+          <label htmlFor="register-email">Email</label>
           <input
-            id="email"
+            id="register-email"
             type="email"
             value={email}
             onChange={(event) => setEmail(event.target.value)}
             required
             autoComplete="email"
+            placeholder="you@example.com"
           />
 
-          <label htmlFor="password">Password</label>
-          <input
-            id="password"
-            type="password"
-            value={password}
-            onChange={(event) => setPassword(event.target.value)}
-            required
-            minLength={8}
-            autoComplete="new-password"
-          />
+          <label htmlFor="register-password">Password</label>
+          <div className="password-field">
+            <input
+              id="register-password"
+              type={showPassword ? "text" : "password"}
+              value={password}
+              onChange={(event) => setPassword(event.target.value)}
+              required
+              minLength={8}
+              autoComplete="new-password"
+              placeholder="At least 8 characters"
+            />
+            <button
+              type="button"
+              className="password-toggle"
+              onClick={() => setShowPassword((previous) => !previous)}
+              aria-label={showPassword ? "Hide password" : "Show password"}
+            >
+              {showPassword ? "Hide" : "Show"}
+            </button>
+          </div>
 
           {error && (
             <p className="auth-error" role="alert">
