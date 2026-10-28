@@ -7,6 +7,7 @@ from app.api.users import router as users_router
 from app.models.project import Project
 from app.api.projects import router as projects_router
 from fastapi.middleware.cors import CORSMiddleware
+from app.models import user, project
 Base.metadata.create_all(bind=engine)
 
 

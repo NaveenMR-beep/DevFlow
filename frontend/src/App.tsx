@@ -4,7 +4,7 @@ import "./App.css";
 import Login from "./pages/Login";
 import Register from "./pages/Register";
 
-const API = "http://127.0.0.1:8000";
+const API = "https://devflow-backend-7emx.onrender.com";
 
 type Project = {
   id: number;

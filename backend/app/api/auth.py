@@ -60,7 +60,7 @@ def register(
     return new_user
 
 
-@router.post("/login")
+
 @router.post("/login")
 def login(
     form_data: OAuth2PasswordRequestForm = Depends(),
