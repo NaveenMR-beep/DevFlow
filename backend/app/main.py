@@ -23,6 +23,7 @@ cors_origins = [
     "http://localhost:5173",
     "http://127.0.0.1:5173",
     "https://dev-flow-h95h.vercel.app",
+    "https://dev-flow-nu-ruby.vercel.app",
 ]
 cors_origins.extend(
     origin.strip().rstrip("/")
