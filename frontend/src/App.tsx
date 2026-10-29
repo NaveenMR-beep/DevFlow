@@ -3,8 +3,7 @@ import { useEffect, useState, type FormEvent } from "react";
 import "./App.css";
 import Login from "./pages/Login";
 import Register from "./pages/Register";
-
-const API = "https://devflow-backend-7emx.onrender.com";
+import { API_URL } from "./api";
 
 type Project = {
   id: number;
@@ -70,7 +69,7 @@ function App() {
 
     async function loadUser() {
       try {
-        const response = await fetch(`${API}/users/me`, {
+        const response = await fetch(`${API_URL}/users/me`, {
           headers: { Authorization: `Bearer ${token}` },
         });
 
@@ -114,7 +113,7 @@ function App() {
       setLoadingProjects(true);
 
       try {
-        const response = await fetch(`${API}/projects/`, {
+        const response = await fetch(`${API_URL}/projects/`, {
           headers: { Authorization: `Bearer ${token}` },
         });
 
@@ -169,7 +168,7 @@ function App() {
     }
 
     try {
-      const response = await fetch(`${API}/projects/`, {
+      const response = await fetch(`${API_URL}/projects/`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -221,7 +220,7 @@ function App() {
     }
 
     try {
-      const response = await fetch(`${API}/projects/${projectId}`, {
+      const response = await fetch(`${API_URL}/projects/${projectId}`, {
         method: "PUT",
         headers: {
           "Content-Type": "application/json",
@@ -269,7 +268,7 @@ function App() {
     }
 
     try {
-      const response = await fetch(`${API}/projects/${projectId}`, {
+      const response = await fetch(`${API_URL}/projects/${projectId}`, {
         method: "DELETE",
         headers: { Authorization: `Bearer ${token}` },
       });

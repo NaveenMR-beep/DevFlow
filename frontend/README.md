@@ -33,3 +33,7 @@ If you are developing a production application, we recommend enabling type-aware
 ```
 
 See the [Oxlint rules documentation](https://oxc.rs/docs/guide/usage/linter/rules) for the full list of rules and categories.
+
+## Deployment configuration
+
+Set `VITE_API_URL` to the backend base URL when building the frontend. On the backend, set `CORS_ORIGINS` to the exact deployed frontend origin (or a comma-separated list of origins), for example `https://your-frontend.example.com`. Include the scheme and omit any path. The backend also allows `http://localhost:5173` for local development.

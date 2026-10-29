@@ -1,5 +1,6 @@
 
 import { useState, type FormEvent } from "react";
+import { API_URL } from "../api";
 
 type RegisterProps = {
   onRegistered: () => void;
@@ -20,7 +21,7 @@ function Register({ onRegistered, onShowLogin }: RegisterProps) {
     setLoading(true);
 
     try {
-      const response = await fetch("https://devflow-backend-7emx.onrender.com/auth/register", {
+      const response = await fetch(`${API_URL}/auth/register`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
