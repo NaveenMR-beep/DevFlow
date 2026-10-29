@@ -22,6 +22,7 @@ app = FastAPI(
 cors_origins = [
     "http://localhost:5173",
     "http://127.0.0.1:5173",
+    "https://dev-flow-h95h.vercel.app",
 ]
 cors_origins.extend(
     origin.strip().rstrip("/")
@@ -32,9 +33,9 @@ cors_origins.extend(
 app.add_middleware(
     CORSMiddleware,
     allow_origins=cors_origins,
-    allow_credentials=True,
-    allow_methods=["*"],
-    allow_headers=["*"],
+    allow_credentials=False,
+    allow_methods=["GET", "POST", "PUT", "DELETE"],
+    allow_headers=["Authorization", "Content-Type"],
 )
 
 app.include_router(auth_router)

@@ -3,7 +3,11 @@ import { useEffect, useState, type FormEvent } from "react";
 import "./App.css";
 import Login from "./pages/Login";
 import Register from "./pages/Register";
-import { API_URL } from "./api";
+import {
+  API_BASE_URL,
+  getApiErrorMessage,
+  getApiRequestErrorMessage,
+} from "./api";
 
 type Project = {
   id: number;
@@ -30,6 +34,7 @@ function App() {
 
   const [user, setUser] = useState<User | null>(null);
   const [projects, setProjects] = useState<Project[]>([]);
+  const [authNotice, setAuthNotice] = useState("");
   const [searchTerm, setSearchTerm] = useState("");
   const [projectName, setProjectName] = useState("");
   const [description, setDescription] = useState("");
@@ -44,18 +49,20 @@ function App() {
     "dashboard" | "projects" | "profile"
   >("dashboard");
 
-  function handleLogout() {
+  function handleLogout(message = "You have logged out.") {
     sessionStorage.removeItem("devflow_token");
     setToken(null);
     setUser(null);
     setProjects([]);
     setSearchTerm("");
     setPage("login");
-    setMessage("You have logged out.");
+    setMessage(message);
+    setAuthNotice(message === "You have logged out." ? "" : message);
   }
 
   function handleLogin(accessToken: string) {
     sessionStorage.setItem("devflow_token", accessToken);
+    setAuthNotice("");
     setToken(accessToken);
     setPage("dashboard");
     setMessage("Welcome to your DevFlow workspace!");
@@ -69,28 +76,29 @@ function App() {
 
     async function loadUser() {
       try {
-        const response = await fetch(`${API_URL}/users/me`, {
+        const response = await fetch(`${API_BASE_URL}/users/me`, {
           headers: { Authorization: `Bearer ${token}` },
         });
 
         if (response.status === 401) {
-          if (!cancelled) handleLogout();
+          if (!cancelled) {
+            handleLogout("Your session expired. Please log in again.");
+          }
           return;
         }
 
-        const data = await response.json();
-
         if (!response.ok) {
-          throw new Error(data.detail || "Could not load user profile.");
+          throw new Error(
+            await getApiErrorMessage(response, "Could not load user profile.")
+          );
         }
 
+        const data = await response.json();
         if (!cancelled) setUser(data);
       } catch (error) {
         if (!cancelled) {
           setMessage(
-            error instanceof Error
-              ? error.message
-              : "Could not load user profile."
+            getApiRequestErrorMessage(error, "Could not load user profile.")
           );
         }
       }
@@ -113,28 +121,29 @@ function App() {
       setLoadingProjects(true);
 
       try {
-        const response = await fetch(`${API_URL}/projects/`, {
+        const response = await fetch(`${API_BASE_URL}/projects/`, {
           headers: { Authorization: `Bearer ${token}` },
         });
 
         if (response.status === 401) {
-          if (!cancelled) handleLogout();
+          if (!cancelled) {
+            handleLogout("Your session expired. Please log in again.");
+          }
           return;
         }
 
-        const data = await response.json();
-
         if (!response.ok) {
-          throw new Error(data.detail || "Could not load projects.");
+          throw new Error(
+            await getApiErrorMessage(response, "Could not load projects.")
+          );
         }
 
+        const data = await response.json();
         if (!cancelled) setProjects(data);
       } catch (error) {
         if (!cancelled) {
           setMessage(
-            error instanceof Error
-              ? error.message
-              : "Could not load projects."
+            getApiRequestErrorMessage(error, "Could not load projects.")
           );
         }
       } finally {
@@ -168,7 +177,7 @@ function App() {
     }
 
     try {
-      const response = await fetch(`${API_URL}/projects/`, {
+      const response = await fetch(`${API_BASE_URL}/projects/`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -180,25 +189,24 @@ function App() {
         }),
       });
 
-      const data = await response.json();
-
       if (response.status === 401) {
-        handleLogout();
+        handleLogout("Your session expired. Please log in again.");
         return;
       }
 
       if (!response.ok) {
-        throw new Error(data.detail || "Could not create project.");
+        throw new Error(
+          await getApiErrorMessage(response, "Could not create project.")
+        );
       }
 
+      const data = await response.json();
       setProjects((previous) => [...previous, data]);
       setProjectName("");
       setDescription("");
       setMessage("Project created successfully!");
     } catch (error) {
-      setMessage(
-        error instanceof Error ? error.message : "Could not create project."
-      );
+      setMessage(getApiRequestErrorMessage(error, "Could not create project."));
     }
   }
 
@@ -220,7 +228,7 @@ function App() {
     }
 
     try {
-      const response = await fetch(`${API_URL}/projects/${projectId}`, {
+      const response = await fetch(`${API_BASE_URL}/projects/${projectId}`, {
         method: "PUT",
         headers: {
           "Content-Type": "application/json",
@@ -232,17 +240,18 @@ function App() {
         }),
       });
 
-      const data = await response.json();
-
       if (response.status === 401) {
-        handleLogout();
+        handleLogout("Your session expired. Please log in again.");
         return;
       }
 
       if (!response.ok) {
-        throw new Error(data.detail || "Could not update project.");
+        throw new Error(
+          await getApiErrorMessage(response, "Could not update project.")
+        );
       }
 
+      const data = await response.json();
       setProjects((previous) =>
         previous.map((project) =>
           project.id === projectId ? data : project
@@ -251,9 +260,7 @@ function App() {
       setEditingProjectId(null);
       setMessage("Project updated successfully!");
     } catch (error) {
-      setMessage(
-        error instanceof Error ? error.message : "Could not update project."
-      );
+      setMessage(getApiRequestErrorMessage(error, "Could not update project."));
     }
   }
 
@@ -268,25 +275,20 @@ function App() {
     }
 
     try {
-      const response = await fetch(`${API_URL}/projects/${projectId}`, {
+      const response = await fetch(`${API_BASE_URL}/projects/${projectId}`, {
         method: "DELETE",
         headers: { Authorization: `Bearer ${token}` },
       });
 
       if (response.status === 401) {
-        handleLogout();
+        handleLogout("Your session expired. Please log in again.");
         return;
       }
 
       if (!response.ok) {
-        let detail = "Could not delete project.";
-        try {
-          const data = await response.json();
-          detail = data.detail || detail;
-        } catch {
-          // The server may return an empty or non-JSON error response.
-        }
-        throw new Error(detail);
+        throw new Error(
+          await getApiErrorMessage(response, "Could not delete project.")
+        );
       }
 
       setProjects((previous) =>
@@ -299,9 +301,7 @@ function App() {
 
       setMessage("Project deleted successfully.");
     } catch (error) {
-      setMessage(
-        error instanceof Error ? error.message : "Could not delete project."
-      );
+      setMessage(getApiRequestErrorMessage(error, "Could not delete project."));
     }
   }
 
@@ -319,6 +319,7 @@ function App() {
       <Login
         onLogin={handleLogin}
         onShowRegister={() => setPage("register")}
+        notice={authNotice}
       />
     );
   }
@@ -390,7 +391,7 @@ function App() {
             <button
               className="logout-button"
               type="button"
-              onClick={handleLogout}
+              onClick={() => handleLogout()}
             >
               Log out
             </button>

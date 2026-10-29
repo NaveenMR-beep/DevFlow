@@ -1,13 +1,18 @@
 
 import { useState, type FormEvent } from "react";
-import { API_URL } from "../api";
+import {
+  API_BASE_URL,
+  getApiErrorMessage,
+  getApiRequestErrorMessage,
+} from "../api";
 
 type LoginProps = {
   onLogin: (token: string) => void;
   onShowRegister: () => void;
+  notice?: string;
 };
 
-function Login({ onLogin, onShowRegister }: LoginProps) {
+function Login({ onLogin, onShowRegister, notice }: LoginProps) {
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
@@ -23,7 +28,7 @@ function Login({ onLogin, onShowRegister }: LoginProps) {
       formData.set("username", username.trim());
       formData.set("password", password);
 
-      const response = await fetch(`${API_URL}/auth/login`, {
+      const response = await fetch(`${API_BASE_URL}/auth/login`, {
         method: "POST",
         headers: {
           "Content-Type": "application/x-www-form-urlencoded",
@@ -31,23 +36,23 @@ function Login({ onLogin, onShowRegister }: LoginProps) {
         body: formData,
       });
 
-      const data = await response.json();
-
       if (!response.ok) {
-        throw new Error(data.detail || "Login failed.");
+        throw new Error(await getApiErrorMessage(response, "Login failed."));
       }
 
-      if (!data.access_token) {
+      const data: unknown = await response.json();
+      if (typeof data !== "object" || data === null || !("access_token" in data)) {
         throw new Error("The server did not return an access token.");
       }
 
-      onLogin(data.access_token);
+      const accessToken = data.access_token;
+      if (typeof accessToken !== "string" || !accessToken) {
+        throw new Error("The server did not return an access token.");
+      }
+
+      onLogin(accessToken);
     } catch (err) {
-      setError(
-        err instanceof Error
-          ? err.message
-          : "Could not connect to the server."
-      );
+      setError(getApiRequestErrorMessage(err, "Login failed."));
     } finally {
       setLoading(false);
     }
@@ -81,6 +86,12 @@ function Login({ onLogin, onShowRegister }: LoginProps) {
             required
             autoComplete="current-password"
           />
+
+          {notice && (
+            <p className="auth-error" role="alert">
+              {notice}
+            </p>
+          )}
 
           {error && (
             <p className="auth-error" role="alert">

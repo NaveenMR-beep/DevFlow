@@ -1,6 +1,10 @@
 
 import { useState, type FormEvent } from "react";
-import { API_URL } from "../api";
+import {
+  API_BASE_URL,
+  getApiErrorMessage,
+  getApiRequestErrorMessage,
+} from "../api";
 
 type RegisterProps = {
   onRegistered: () => void;
@@ -21,7 +25,7 @@ function Register({ onRegistered, onShowLogin }: RegisterProps) {
     setLoading(true);
 
     try {
-      const response = await fetch(`${API_URL}/auth/register`, {
+      const response = await fetch(`${API_BASE_URL}/auth/register`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -33,19 +37,15 @@ function Register({ onRegistered, onShowLogin }: RegisterProps) {
         }),
       });
 
-      const data = await response.json();
-
       if (!response.ok) {
-        throw new Error(data.detail || "Registration failed.");
+        throw new Error(
+          await getApiErrorMessage(response, "Registration failed.")
+        );
       }
 
       onRegistered();
     } catch (err) {
-      setError(
-        err instanceof Error
-          ? err.message
-          : "Could not connect to the server."
-      );
+      setError(getApiRequestErrorMessage(err, "Registration failed."));
     } finally {
       setLoading(false);
     }

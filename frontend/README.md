@@ -36,4 +36,6 @@ See the [Oxlint rules documentation](https://oxc.rs/docs/guide/usage/linter/rule
 
 ## Deployment configuration
 
-Set `VITE_API_URL` to the backend base URL when building the frontend. On the backend, set `CORS_ORIGINS` to the exact deployed frontend origin (or a comma-separated list of origins), for example `https://your-frontend.example.com`. Include the scheme and omit any path. The backend also allows `http://localhost:5173` for local development.
+The checked-in `.env.development` and `.env.production` files point `VITE_API_URL` to the deployed Render backend. Override `VITE_API_URL` only when intentionally using another backend. Do not put database credentials, signing keys, or other backend secrets in frontend environment files.
+
+The backend allows `http://localhost:5173`, `http://127.0.0.1:5173`, and the deployed frontend origin `https://dev-flow-h95h.vercel.app`. Additional exact origins can be configured as a comma-separated `CORS_ORIGINS` backend environment variable. The API uses bearer tokens in the `Authorization` header rather than cookies, so CORS credentials are disabled.
